@@ -1,0 +1,6 @@
+{
+  "src": "src",
+  "exclude": ["src/main.ts", "src/utils/Opaque*.ts"],
+  "reporter": ["lcovonly", "text"],
+  "all": true
+}

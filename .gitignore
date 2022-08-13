@@ -1,0 +1,5 @@
+dist
+.pnpm-*
+test
+node_modules
+coverage

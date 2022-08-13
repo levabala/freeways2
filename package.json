@@ -1,0 +1,27 @@
+{
+  "name": "freeways2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/main.ts",
+  "type": "module",
+  "scripts": {
+    "test": "node --loader @esbuild-kit/esm-loader --test src/**/*.test.ts",
+    "test:coverage": "rm -rf coverage && c8 node --loader @esbuild-kit/esm-loader --test src/**/*.test.ts",
+    "start": "rm -rf dist && tsup src/main.ts --onSuccess 'node dist/main.cjs'",
+    "start:watch": "rm -rf dist && tsup src/main.ts --watch --onSuccess 'node dist/main.cjs'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "fp-ts": "^2.12.2"
+  },
+  "devDependencies": {
+    "@esbuild-kit/esm-loader": "^2.4.2",
+    "@types/node": "^18.7.2",
+    "c8": "^7.12.0"
+  },
+  "engines": {
+    "node": ">=18.7.0"
+  }
+}
