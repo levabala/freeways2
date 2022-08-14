@@ -36,6 +36,18 @@ export type Input = Identified<InputId>;
 export type OutputId = number;
 export type Output = Identified<OutputId>;
 
+export type TransputId = InputId | OutputId;
+export type Transput = Input | Output;
+
+export type TransputTypeInput = 0;
+export type TransputTypeOutput = 1;
+export type TransputType = TransputTypeInput | TransputTypeOutput;
+
+export const TransputType = {
+  Input: 0 as TransputTypeInput,
+  Output: 1 as TransputTypeOutput
+} as const;
+
 export type CarId = number;
 export type Car = Identified<CarId> & {
   inputId: InputId;
@@ -43,16 +55,16 @@ export type Car = Identified<CarId> & {
 };
 
 /*
-TODO:
 Cell value as number:
 
-0                 0 0 0 0           0 0 0                 0 0 0 0 0 0 0 0 0 0
-0/1 input/output  input/output id   occupied road levels  car id               
+0                 0                 0 0 0 0           0 0 0                 0 0 0 0 0 0 0 0 0 0
+has input/output  0/1 input/output  input/output id   occupied road levels  car id               
 
-total: 1 + 4 + 3 + 10 = 18 bits
+total: 1 + 1 + 4 + 3 + 10 = 19 bits
 */
 
-export const CELL_LENGTH = 18;
+export const BASE = 0b0_0_0000_000_0000000000;
+export const CELL_LENGTH = 19;
 
 export type Room = {
   size: Size;

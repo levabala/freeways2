@@ -1,6 +1,12 @@
 {
   "src": "src",
-  "exclude": ["src/main.ts", "src/utils/Opaque*.ts"],
+  "exclude": [
+    "src/main.ts",
+    "src/utils/Opaque*.ts",
+    "src/utils/ValueOf.ts",
+    "src/**/*.test.ts",
+    "src/**/index.ts"
+  ],
   "reporter": ["lcovonly", "text"],
   "all": true
 }

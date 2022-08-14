@@ -2,6 +2,8 @@
   "cSpell.words": [
     "esbuild",
     "lcovonly",
+    "Transput",
     "tsup"
-  ]
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

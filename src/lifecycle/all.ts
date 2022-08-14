@@ -1,20 +1,17 @@
-import { Either, left, right } from 'fp-ts/lib/Either';
-import {
-  CellId,
-  CELL_LENGTH,
-  Coordinate,
-  Duration,
-  InputId,
-  Room,
-  Size,
-  Timestamp
-} from '../types';
+import { Either } from 'fp-ts/lib/Either';
+import { Coordinate, Duration, Room, Size, Timestamp } from '../types';
+import { ValueOf } from '../utils';
+import { createEnum } from '../utils/createEnum';
 
-export const ErrorLifecycle = {
-  ERROR_CANNOT_ADD_INPUT_ALREADY_HAS_INPUT_OR_OUTPUT:
-    'ERROR_CANNOT_ADD_INPUT_ALREADY_HAS_INPUT_OR_OUTPUT'
-} as const;
-export type ErrorLifecycle = typeof ErrorLifecycle;
+export const ErrorLifecycle = createEnum([
+  'ERROR_HAS_TRANSPUT_OR_OUTPUT',
+  'ERROR_HAS_NO_TRANSPUT_OR_OUTPUT',
+  'ERROR_TRANSPUT_ID_IS_TOO_BIG',
+  'ERROR_INVALID_COORD'
+] as const);
+
+export type ErrorLifecycleMap = typeof ErrorLifecycle;
+export type ErrorLifecycle = ValueOf<ErrorLifecycleMap>;
 
 export function sum(timestamp: Timestamp, duration: Duration): Timestamp;
 export function sum(duration1: Duration, duration2: Duration): Duration;
@@ -27,6 +24,10 @@ export function sum(
     (value2 as unknown as number)) as unknown as Timestamp | Duration;
 }
 
+export function isCoordPositive(coord: Coordinate): boolean {
+  return coord.x >= 0 && coord.y >= 0;
+}
+
 export function coordToIndex(size: Size, coord: Coordinate): number {
   return coord.y * size.width + coord.x;
 }
@@ -37,55 +38,4 @@ export function elapse(room: Room, timeDelta: Duration): Room {
   room.timestamp = timestampNew;
 
   return room;
-}
-
-const BASE = 0b0_0000_000_0000000000;
-const cellInputOutputMask = 0b1_0000_000_0000000000;
-const cellInputOutputOffset = CELL_LENGTH;
-export function cellHasInputOrOutput(cell: CellId): boolean {
-  return (cell & cellInputOutputMask) >>> (cellInputOutputOffset - 1) === 1;
-}
-
-export function cellMarkHasInputOrOutput(cell: CellId): CellId {
-  return cell | cellInputOutputMask;
-}
-
-export function cellMarkHasNoInputOrOutput(cell: CellId): CellId {
-  return cell & ~cellInputOutputMask;
-}
-
-const inputIdMask = 0b1111;
-const cellInputIdMask = 0b0_1111_000_0000000000;
-const cellInputIdMaskOffset = CELL_LENGTH - 4;
-export function cellSetInputId(cell: CellId, inputId: InputId): CellId {
-  const cellWithoutId = cell & ~cellInputIdMask;
-  const inputIdWithoutHead = inputId & inputIdMask;
-
-  return cellWithoutId & (inputIdWithoutHead << (cellInputIdMaskOffset - 1));
-}
-
-export function addInput(
-  room: Room,
-  inputId: InputId,
-  coord: Coordinate
-): Either<
-  ErrorLifecycle['ERROR_CANNOT_ADD_INPUT_ALREADY_HAS_INPUT_OR_OUTPUT'],
-  Room
-> {
-  const index = coordToIndex(room.size, coord);
-
-  const cell = room.cells[index];
-  const hasInputOrOutput = cellHasInputOrOutput(cell);
-
-  if (hasInputOrOutput) {
-    return left(
-      ErrorLifecycle.ERROR_CANNOT_ADD_INPUT_ALREADY_HAS_INPUT_OR_OUTPUT
-    );
-  }
-
-  const cellWithInputId = cellSetInputId(cell, inputId);
-
-  room.cells[index] = cellWithInputId;
-
-  return right(room);
 }
