@@ -1,26 +1,20 @@
 import { left, right } from 'fp-ts/lib/Either';
 import { pipe } from 'fp-ts/lib/function';
-import {
-  CellId,
-  CELL_LENGTH,
-  Coordinate,
-  TransputId,
-  Room,
-  TransputType
-} from '../types';
-import { ErrorLifecycle, coordToIndex, isCoordPositive } from './all';
+import { Cell, Coordinate, TransputId, Room, TransputType } from '../types';
+import { ErrorLifecycle } from './errors';
+import { isCoordValid, coordToIndex } from './utils';
 
 const cellHasTransputMask = 0b1_0_0000_000_0000000000;
 const cellHasTransputOffset = Math.log2(cellHasTransputMask);
-function cellHasTransput(cell: CellId): boolean {
+function cellHasTransput(cell: Cell): boolean {
   return (cell & cellHasTransputMask) >>> cellHasTransputOffset === 1;
 }
 
-function cellMarkHasTransput(cell: CellId): CellId {
+function cellMarkHasTransput(cell: Cell): Cell {
   return cell | cellHasTransputMask;
 }
 
-function cellMarkHasNoTransput(cell: CellId): CellId {
+function cellMarkHasNoTransput(cell: Cell): Cell {
   return cell & ~cellHasTransputMask;
 }
 
@@ -31,14 +25,14 @@ const cellTransputIdMaskOffset = Math.log2(
 );
 const cellSetTransputId =
   (transputId: TransputId) =>
-  (cell: CellId): CellId => {
+  (cell: Cell): Cell => {
     const cellWithoutId = cell & ~cellTransputIdMask;
     const transputIdWithoutHead = transputId & transputIdMask;
 
     return cellWithoutId | (transputIdWithoutHead << cellTransputIdMaskOffset);
   };
 
-const cellRemoveTransputId = (cell: CellId): CellId => {
+const cellRemoveTransputId = (cell: Cell): Cell => {
   return cell & ~cellTransputIdMask;
 };
 
@@ -46,23 +40,15 @@ const cellTransputTypeMask = 0b0_1_0000_000_0000000000;
 const cellTransputTypeMaskOffset = Math.log2(cellTransputTypeMask);
 const cellSetTransputType =
   (transputType: TransputType) =>
-  (cell: CellId): CellId => {
+  (cell: Cell): Cell => {
     const cellWithoutId = cell & ~cellTransputTypeMask;
 
     return cellWithoutId | (transputType << cellTransputTypeMaskOffset);
   };
 
-const cellGetTransputType = (cell: CellId): TransputType => {
+const cellGetTransputType = (cell: Cell): TransputType => {
   return (cell & cellTransputTypeMask) > 0 ? 1 : 0;
 };
-
-function isCoordValid(room: Room, coord: Coordinate): boolean {
-  return (
-    !isCoordPositive(coord) ||
-    coord.x > room.size.width ||
-    coord.y > room.size.height
-  );
-}
 
 export function getTransputType(room: Room, coord: Coordinate) {
   if (isCoordValid(room, coord)) {
@@ -95,7 +81,7 @@ export function addTransput(
   const hasTransputOrOutput = cellHasTransput(cell);
 
   if (hasTransputOrOutput) {
-    return left(ErrorLifecycle.ERROR_HAS_TRANSPUT_OR_OUTPUT);
+    return left(ErrorLifecycle.ERROR_ALREADY_HAS_TRANSPUT_OR_OUTPUT);
   }
 
   const cellWithTransputId = pipe(
@@ -121,7 +107,7 @@ export function removeTransput(room: Room, coord: Coordinate) {
   const hasTransputOrOutput = cellHasTransput(cell);
 
   if (!hasTransputOrOutput) {
-    return left(ErrorLifecycle.ERROR_HAS_NO_TRANSPUT_OR_OUTPUT);
+    return left(ErrorLifecycle.ERROR_ALREADY_HAS_NO_TRANSPUT_OR_OUTPUT);
   }
 
   const cellWithoutTransputId = pipe(

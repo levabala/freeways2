@@ -29,7 +29,9 @@ export type Identified<Id> = {
   id: Id;
 };
 
-export type CellId = number;
+export type RoadLevel = number;
+
+export type Cell = number;
 
 export type InputId = number;
 export type Input = Identified<InputId>;
@@ -65,6 +67,7 @@ total: 1 + 1 + 4 + 3 + 10 = 19 bits
 
 export const BASE = 0b0_0_0000_000_0000000000;
 export const CELL_LENGTH = 19;
+export const MAX_ROAD_LEVEL = 2; // starts from 0
 
 export type Room = {
   size: Size;

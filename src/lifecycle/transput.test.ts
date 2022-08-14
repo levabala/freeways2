@@ -1,17 +1,10 @@
 import { isLeft, isRight } from 'fp-ts/lib/Either';
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
-import { Room, Size, toTimestamp, TransputType } from '../types';
-import { ErrorLifecycle } from './all';
+import { Room, TransputType } from '../types';
+import { createEmptyRoom } from './room';
+import { ErrorLifecycle } from './errors';
 import { addTransput, getTransputType, removeTransput } from './transput';
-
-function createEmptyRoom(size: Size): Room {
-  return {
-    cells: new Uint32Array(size.width * size.height),
-    size,
-    timestamp: toTimestamp(0)
-  };
-}
 
 describe('transput', () => {
   it('add/remove transput normal', () => {
@@ -147,7 +140,7 @@ describe('transput', () => {
     assert(isLeft(roomResult));
     assert.strictEqual(
       roomResult.left,
-      ErrorLifecycle.ERROR_HAS_TRANSPUT_OR_OUTPUT
+      ErrorLifecycle.ERROR_ALREADY_HAS_TRANSPUT_OR_OUTPUT
     );
   });
 
@@ -158,7 +151,7 @@ describe('transput', () => {
     assert(isLeft(roomResult));
     assert.strictEqual(
       roomResult.left,
-      ErrorLifecycle.ERROR_HAS_NO_TRANSPUT_OR_OUTPUT
+      ErrorLifecycle.ERROR_ALREADY_HAS_NO_TRANSPUT_OR_OUTPUT
     );
   });
 });
